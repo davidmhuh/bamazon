@@ -19,13 +19,16 @@ function bamazonInventory() {
     connection.query("SELECT * FROM products", (err,res) => {
         for (var i = 0; i < res.length; i++) {
             console.log(res[i].item_id + " " + res[i].product_name + " " + res[i].department_name + " " + res[i].price + " " + res[i].stock_quantity)
+
         }
     });
     bamazonCustomer();
 }
 
-function bamazonCustomer() {
-connection.query("SELECT * FROM products", function(err, res){
+
+var bamazonCustomer = function() {
+connection.query("SELECT * FROM products", function(err, res2){
+    if (err) throw err;
     inquirer.prompt([
         {
         name: "id",
@@ -38,27 +41,37 @@ connection.query("SELECT * FROM products", function(err, res){
     }])
     .then(function(answer){
         var customer = parseInt(answer.id);
-        for (var i = 0; i < res.length; i++) {
-            var quantity = parseInt(res[i].stock_quantity)
+        for (var i = 0; i < res2.length; i++) {
+            var userBuy = (answer.quantity);
+            var stock = parseInt(res2[customer].stock_quantity);
+
+
+            
         }
 
-        if (customer > quantity) {
+        if (userBuy > stock) {
             console.log("insufficient quantity!");
             bamazonInventory();
         }
         else {
             console.log("thanks for purchase")
-            bamazonInventory();
+            var current = stock - userBuy;
+            connection.query("UPDATE products SET stock_quantity=" + current + "WHERE product_name = " + customer + "", function(err, res){
+                console.log("sold!");
+                bamazonInventory();
+                
+            })
+            console.log(current)
         }
         
-    
-        
-        
+            
+    })
+
+
     });
+};
 
-});
 
-}
 
 bamazonInventory();
 
